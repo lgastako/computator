@@ -1,4 +1,5 @@
 import inspect
+import types
 
 class NotReady(Exception):
     pass
@@ -17,7 +18,21 @@ def computate_func(func, vals, all_names):
         args.append(vals[name])
     return func(*args)
 
-def computate(graph, **input_set):
+def func_to_graph(func):
+    return {func.__name__: func}
+
+def computate(computation, **input_set):
+    if isinstance(computation, types.FunctionType):
+        return computate_defnk(computation, input_set)
+    else:
+        return computate_graph(computation, input_set)
+
+def computate_defnk(defnk, input_set):
+    graph = func_to_graph(defnk)
+    result = computate_graph(graph, input_set)
+    return result[defnk.__name__]
+
+def computate_graph(graph, input_set):
     graph_names = graph.viewkeys()
     input_names = input_set.viewkeys()
     all_names = graph_names | input_names

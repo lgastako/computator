@@ -4,7 +4,7 @@ import pytest
 
 from computator import computate
 
-class TestPlumbingDocExamples:
+class TestStatsExamples:
     STATS_GRAPH = {
         "n": lambda xs: len(xs),
         "m": lambda xs, n: sum(xs) / n,
@@ -39,3 +39,15 @@ class TestPlumbingDocExamples:
             "v"  : 3.5,
             "sd" : 1.8708286933869707
         }
+
+class TestDefnkExamples:
+    @staticmethod
+    def simple_fnk(a, b, c):
+        return a + b + c
+
+    def test_simple_fnk(self):
+        assert computate(self.simple_fnk, **{"a": 1, "b": 2, "c": 3}) == 6
+
+    def test_defnk_missing_key(self):
+        with pytest.raises(KeyError):
+            computate(self.simple_fnk, **{"a": 1, "b": 2})
