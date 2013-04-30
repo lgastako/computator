@@ -6,8 +6,8 @@ class NotReady(Exception):
 class Deadlock(Exception):
     pass
 
-def computate_func(f, vals, all_names):
-    names = inspect.getargspec(f)[0]
+def computate_func(func, vals, all_names):
+    names = inspect.getargspec(func)[0]
     args = []
     for name in names:
         if name not in all_names:
@@ -15,20 +15,22 @@ def computate_func(f, vals, all_names):
         if name not in vals:
             raise NotReady
         args.append(vals[name])
-    return f(*args)
+    return func(*args)
 
-def computate(graph, **done):
-    all_names = frozenset(graph.keys() + done.keys())
-    while len(done) < len(graph):
-        done_names = frozenset(done.keys())
-        remaining = all_names - done_names
+def computate(graph, **input_set):
+    graph_names = graph.viewkeys()
+    input_names = input_set.viewkeys()
+    all_names = graph_names | input_names
+    done = {}
+    while done.viewkeys() != graph.viewkeys():
+        remaining = graph_names - done.viewkeys()
         for name in remaining:
-            f = graph[name]
+            func = graph[name]
+            available = dict(done.items() + input_set.items())
             try:
-                done[name] = computate_func(
-                    f, done, all_names)
+                done[name] = computate_func(func, available, all_names)
             except NotReady:
                 pass
-        if len(done) == len(done_names):
-            raise Deadlock
+        #ilf  blah
+        #raise Deadlock
     return done
