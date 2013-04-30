@@ -23,7 +23,7 @@ def execute_func(f, vals):
             raise NotReady
         args.append(vals[name])
     return f(*args)
-        
+
 def execute(graph, **done):
     while len(done) < len(graph):
         unfinished = frozenset(graph.keys()) - frozenset(done.keys())
