@@ -41,6 +41,7 @@ class TestStatsExamples:
         }
 
 class TestDefnkExamples:
+
     @staticmethod
     def simple_fnk(a, b, c):
         return a + b + c
