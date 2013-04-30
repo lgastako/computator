@@ -10,5 +10,9 @@ GRAPH = {
 def main():
     print computate(GRAPH, xs=[1, 2, 3, 6])
 
+    # output:
+    #
+    # {'xs': [1, 2, 3, 6], 'm2': 12.5, 'm': 3, 'n': 4}
+
 if __name__ == "__main__":
     main()
