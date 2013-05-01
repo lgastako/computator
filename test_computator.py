@@ -4,6 +4,7 @@ import pytest
 
 from computator import computate
 from computator import input_schema
+from computator import output_schema
 
 class TestStatsExamples:
     STATS_GRAPH = {
@@ -15,6 +16,9 @@ class TestStatsExamples:
 
     def test_sg_input_schema(self):
         assert input_schema(self.STATS_GRAPH) == {"xs": True}
+
+    def test_sg_output_schema(self):
+        assert output_schema(self.STATS_GRAPH) == {'m': True, 'm2': True, 'n': True, 'v': True}
 
     def test_stats(self):
         results = computate(self.STATS_GRAPH, xs=[1, 2, 3, 6])

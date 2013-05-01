@@ -83,3 +83,6 @@ def input_schema(graph):
             elif (name, True) not in arg_stats:
                 schema[name] = False
     return schema
+
+def output_schema(graph):
+    return dict(zip(graph.viewkeys(), [True] * len(graph)))
