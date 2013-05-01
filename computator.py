@@ -64,3 +64,22 @@ def _computate_graph(graph, input_set):
         else:
             raise Deadlock
     return done
+
+def input_schema(graph):
+    arg_stats = set()
+    for name, func in graph.iteritems():
+        argspec = inspect.getargspec(func)
+        arg_names = argspec.args
+        if argspec.defaults:
+            arg_stats |= frozenset([(name, True) for name in arg_names[:num_optional]] +
+                                   [(name, False) for name in arg_names[-num_optional:]])
+        else:
+            arg_stats |= frozenset([(name, True) for name in arg_names])
+    schema = {}
+    for name, required in list(arg_stats):   
+        if name not in graph:
+            if required:
+                schema[name] = True
+            elif (name, True) not in arg_stats:
+                schema[name] = False
+    return schema
