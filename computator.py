@@ -58,8 +58,9 @@ def computate_graph(graph, input_set):
             available = dict(done.items() + input_set.items())
             try:
                 done[name] = execute_computation(func, available, all_names)
+                break
             except NotReady:
                 pass
-        #ilf  blah
-        #raise Deadlock
+        else:
+            raise Deadlock
     return done

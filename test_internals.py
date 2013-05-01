@@ -2,6 +2,7 @@ import pytest
 
 from computator import computate
 from computator import get_defaults
+from computator import Deadlock
 
 class TestGetDefaults:
 
@@ -26,7 +27,7 @@ class TestGetDefaults:
     def test_defaults(self):
         assert get_defaults(self.defaults) == {"c": 1, "d": 2}
 
-class TestComputateFunc:
+class TestExecuteComputation:
 
     def test_missing_key(self):
         graph = {"a": lambda b: "c"}
@@ -40,3 +41,10 @@ class TestComputateFunc:
     def test_single_node_result(self):
         graph = {"a": lambda b: b * 3}
         assert computate(graph, b=2) == {"a": 6}
+
+class TestComputate:
+
+    def test_deadlock(self):
+        graph = {"a": lambda b: 1, "b": lambda a: 2}
+        with pytest.raises(Deadlock):
+            computate(graph)
