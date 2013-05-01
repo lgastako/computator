@@ -46,9 +46,19 @@ class TestDefnkExamples:
     def simple_fnk(a, b, c):
         return a + b + c
 
+    @staticmethod
+    def simple_opt_fnk(a, b, c=1):
+        return a + b + c
+
     def test_simple_fnk(self):
         assert computate(self.simple_fnk, **{"a": 1, "b": 2, "c": 3}) == 6
 
     def test_defnk_missing_key(self):
         with pytest.raises(KeyError):
             computate(self.simple_fnk, **{"a": 1, "b": 2})
+
+    def test_defnk_optional_default(self):
+        assert computate(self.simple_opt_fnk, **{"a": 1, "b": 2}) == 4
+
+    def test_defnk_optional_default_overridden(self):
+        assert computate(self.simple_opt_fnk, **{"a": 1, "b": 2, "c": 2}) == 5

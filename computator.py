@@ -7,15 +7,29 @@ class NotReady(Exception):
 class Deadlock(Exception):
     pass
 
-def computate_func(func, vals, all_names):
-    names = inspect.getargspec(func)[0]
+def get_defaults(func):
+    argspec = inspect.getargspec(func)
+    def_values = argspec.defaults
+    if def_values:
+        def_names = argspec.args[-len(def_values):]
+        return dict(zip(def_names, def_values))
+    else:
+        return {}
+
+def execute_computation(func, vals, all_names):
+    names = inspect.getargspec(func).args
+    defaults = get_defaults(func)
+    all_names = all_names | defaults.viewkeys()
     args = []
     for name in names:
         if name not in all_names:
             raise KeyError(name)
-        if name not in vals:
+        if name in vals:
+            args.append(vals[name])
+        elif name in defaults:
+            args.append(defaults[name])
+        else:
             raise NotReady
-        args.append(vals[name])
     return func(*args)
 
 def func_to_graph(func):
@@ -43,7 +57,7 @@ def computate_graph(graph, input_set):
             func = graph[name]
             available = dict(done.items() + input_set.items())
             try:
-                done[name] = computate_func(func, available, all_names)
+                done[name] = execute_computation(func, available, all_names)
             except NotReady:
                 pass
         #ilf  blah
