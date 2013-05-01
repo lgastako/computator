@@ -7,7 +7,7 @@ class NotReady(Exception):
 class Deadlock(Exception):
     pass
 
-def get_defaults(func):
+def _get_defaults(func):
     argspec = inspect.getargspec(func)
     def_values = argspec.defaults
     if def_values:
@@ -16,9 +16,9 @@ def get_defaults(func):
     else:
         return {}
 
-def execute_computation(func, vals, all_names):
+def _execute_computation(func, vals, all_names):
     names = inspect.getargspec(func).args
-    defaults = get_defaults(func)
+    defaults = _get_defaults(func)
     all_names = all_names | defaults.viewkeys()
     args = []
     for name in names:
@@ -32,21 +32,21 @@ def execute_computation(func, vals, all_names):
             raise NotReady
     return func(*args)
 
-def func_to_graph(func):
+def _func_to_graph(func):
     return {func.__name__: func}
 
 def computate(computation, **input_set):
     if isinstance(computation, types.FunctionType):
-        return computate_defnk(computation, input_set)
+        return _computate_defnk(computation, input_set)
     else:
-        return computate_graph(computation, input_set)
+        return _computate_graph(computation, input_set)
 
-def computate_defnk(defnk, input_set):
-    graph = func_to_graph(defnk)
-    result = computate_graph(graph, input_set)
+def _computate_defnk(defnk, input_set):
+    graph = _func_to_graph(defnk)
+    result = _computate_graph(graph, input_set)
     return result[defnk.__name__]
 
-def computate_graph(graph, input_set):
+def _computate_graph(graph, input_set):
     graph_names = graph.viewkeys()
     input_names = input_set.viewkeys()
     all_names = graph_names | input_names
@@ -57,7 +57,7 @@ def computate_graph(graph, input_set):
             func = graph[name]
             available = dict(done.items() + input_set.items())
             try:
-                done[name] = execute_computation(func, available, all_names)
+                done[name] = _execute_computation(func, available, all_names)
                 break
             except NotReady:
                 pass

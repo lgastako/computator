@@ -1,7 +1,7 @@
 import pytest
 
 from computator import computate
-from computator import get_defaults
+from computator import _get_defaults
 from computator import Deadlock
 
 class TestGetDefaults:
@@ -19,13 +19,13 @@ class TestGetDefaults:
         pass
 
     def test_no_args(self):
-        assert get_defaults(self.no_args) == {}
+        assert _get_defaults(self.no_args) == {}
 
     def test_no_defaults(self):
-        assert get_defaults(self.no_defaults) == {}
+        assert _get_defaults(self.no_defaults) == {}
 
     def test_defaults(self):
-        assert get_defaults(self.defaults) == {"c": 1, "d": 2}
+        assert _get_defaults(self.defaults) == {"c": 1, "d": 2}
 
 class TestExecuteComputation:
 
