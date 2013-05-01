@@ -3,6 +3,7 @@ from math import sqrt
 import pytest
 
 from computator import computate
+from computator import profiling_executor
 from computator import input_schema
 from computator import output_schema
 
@@ -13,12 +14,6 @@ class TestStatsExamples:
         "m2": lambda xs, n: sum([x * x for x in xs]) / float(n),
         "v": lambda m, m2: m2 - (m * m)
     }
-
-    def test_sg_input_schema(self):
-        assert input_schema(self.STATS_GRAPH) == {"xs": True}
-
-    def test_sg_output_schema(self):
-        assert output_schema(self.STATS_GRAPH) == {'m': True, 'm2': True, 'n': True, 'v': True}
 
     def test_stats(self):
         results = computate(self.STATS_GRAPH, xs=[1, 2, 3, 6])
@@ -47,6 +42,22 @@ class TestStatsExamples:
             "v"  : 3.5,
             "sd" : 1.8708286933869707
         }
+
+    def test_sg_input_schema(self):
+        assert input_schema(self.STATS_GRAPH) == {"xs": True}
+
+    def test_sg_output_schema(self):
+        assert output_schema(self.STATS_GRAPH) == {'m': True, 'm2': True, 'n': True, 'v': True}
+
+    def test_sg_profile_executor(self):
+        profile = computate(self.STATS_GRAPH,
+                            executor=profiling_executor,
+                            xs=range(10000))
+        keys = ["m", "m2", "n", "v"]
+        for key in keys:
+            assert key in profile
+            assert profile[key] > 0.0
+        assert len(profile.keys()) == len(keys)
 
 class TestDefnkExamples:
 

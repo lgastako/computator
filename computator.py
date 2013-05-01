@@ -1,5 +1,8 @@
 import inspect
 import types
+import time
+
+from functools import partial
 
 class NotReady(Exception):
     pass
@@ -16,7 +19,16 @@ def _get_defaults(func):
     else:
         return {}
 
-def _execute_computation(func, vals, all_names):
+def identity_execute(func, args):
+    return func(*args)
+
+def profile_execute(func, args):
+    start = time.time()
+    func(*args)
+    end = time.time()
+    return end - start
+
+def simple_executor(func, vals, all_names, execute=identity_execute):
     names = inspect.getargspec(func).args
     defaults = _get_defaults(func)
     all_names = all_names | defaults.viewkeys()
@@ -30,23 +42,33 @@ def _execute_computation(func, vals, all_names):
             args.append(defaults[name])
         else:
             raise NotReady
-    return func(*args)
+    return execute(func, args)
+
+profiling_executor = partial(simple_executor, execute=profile_execute)
 
 def _func_to_graph(func):
     return {func.__name__: func}
 
-def computate(computation, **input_set):
-    if isinstance(computation, types.FunctionType):
-        return _computate_defnk(computation, input_set)
+def computate(computation, input_set=None, executor=None, **kwargs):
+    if input_set is None:
+        input_set = kwargs
     else:
-        return _computate_graph(computation, input_set)
+        for k, v in kwargs.iteritems():
+            if k not in input_set:
+                input_set[k] = v
+    if executor is None:
+        executor = simple_executor
+    if isinstance(computation, types.FunctionType):
+        return _computate_defnk(computation, input_set, executor)
+    else:
+        return _computate_graph(computation, input_set, executor)
 
-def _computate_defnk(defnk, input_set):
+def _computate_defnk(defnk, input_set, executor):
     graph = _func_to_graph(defnk)
-    result = _computate_graph(graph, input_set)
+    result = _computate_graph(graph, input_set, executor)
     return result[defnk.__name__]
 
-def _computate_graph(graph, input_set):
+def _computate_graph(graph, input_set, executor):
     graph_names = graph.viewkeys()
     input_names = input_set.viewkeys()
     all_names = graph_names | input_names
@@ -57,7 +79,7 @@ def _computate_graph(graph, input_set):
             func = graph[name]
             available = dict(done.items() + input_set.items())
             try:
-                done[name] = _execute_computation(func, available, all_names)
+                done[name] = executor(func, available, all_names)
                 break
             except NotReady:
                 pass
