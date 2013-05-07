@@ -58,6 +58,11 @@ class TestStatsExamples:
             assert key in profile
             assert profile[key] > 0.0
         assert len(profile.keys()) == len(keys)
+        # This is incorrect -- it uses the values from the profiling
+        # as the inputs -- the values have to be stored separately
+        # and swapped in for the real results at the last possible
+        # second.
+        assert False
 
 class TestDefnkExamples:
 
